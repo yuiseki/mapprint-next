@@ -223,33 +223,42 @@ export const GeoJsonToSomethings: React.FC<{
                   style={{
                     display: "flex",
                     flexDirection: "column",
+                    justifyContent: "center",
                     alignItems: "center",
                     cursor: "pointer",
                     opacity: opacity,
                     lineHeight: "1",
                     textAlign: "center",
+                    width: "30px",
+                    height: "30px",
+                    border: "solid 2px",
+                    borderRadius: "0 70% 70%",
+                    boxShadow: "0 0 2px #000",
+                    transformOrigin: "0 0",
+                    transform: "rotateZ(-135deg)",
+                    overflow: "hidden",
+                    backgroundColor: style?.fillColor
+                      ? style.fillColor
+                      : "rgba(255, 255, 255, 0.7)",
+                    backdropFilter: "blur(4px)",
+                    boxSizing: "border-box",
                   }}
                 >
                   <div
                     style={{
-                      backgroundColor: style?.fillColor
-                        ? style.fillColor
-                        : "rgba(255, 255, 255, 0.7)",
-                      backdropFilter: "blur(4px)",
-                      borderRadius: "4px",
-                      padding: "2px 4px",
+                      transform: "rotateZ(135deg)",
                       fontSize: fontSize,
                       fontFamily: "sans-serif, emoji",
                       lineHeight: "1.1",
                       WebkitPrintColorAdjust: "exact",
+                      position: "relative",
                     }}
                   >
-                    {icon}
                     <span
                       style={{
-                        fontSize: "0.8em",
+                        fontSize: "1.2em",
                         fontFamily: "sans-serif",
-                        marginLeft: "4px",
+                        zIndex: 100,
                         color: style?.color
                           ? style.color
                           : "rgba(0, 0, 0, 0.8)",
@@ -258,7 +267,19 @@ export const GeoJsonToSomethings: React.FC<{
                       {index + 1}
                     </span>
                   </div>
-                </div>
+                </div>{" "}
+                <span
+                  style={{
+                    fontSize: "1.2em",
+                    fontFamily: "sans-serif, emoji",
+                    position: "absolute",
+                    bottom: "0.6em",
+                    left: "-0.6em",
+                    zIndex: 10,
+                  }}
+                >
+                  {icon}
+                </span>
               </Marker>
             )}
           </Fragment>
