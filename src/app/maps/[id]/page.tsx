@@ -53,7 +53,7 @@ const schoolsStyle = {
   emoji: "🏫",
 };
 
-const overpassQueryWithFeatureStyleList = [
+const overpassQueryWithStyleList = [
   {
     query: hospitalsQuery,
     style: hospitalsStyle,
@@ -63,6 +63,16 @@ const overpassQueryWithFeatureStyleList = [
     style: schoolsStyle,
   },
 ];
+
+type GeoJsonWithStyle = {
+  id: string;
+  style: {
+    color?: string;
+    fillColor?: string;
+    emoji?: string;
+  };
+  geojson: FeatureCollection;
+};
 
 const Page = () => {
   const searchParams = useSearchParams();
@@ -74,40 +84,22 @@ const Page = () => {
   const [currentBounds, setCurrentBounds] = useState<LngLatBounds>();
 
   const [geoJsonWithStyleList, setGeoJsonWithStyleList] = useState<
-    Array<{
-      id: string;
-      style: {
-        color?: string;
-        fillColor?: string;
-        emoji?: string;
-      };
-      geojson: FeatureCollection;
-    }>
+    Array<GeoJsonWithStyle>
   >([]);
 
   const [geoJsonWithStyleListInMapBounds, setGeoJsonWithStyleListInMapBounds] =
-    useState<
-      Array<{
-        id: string;
-        style: {
-          color?: string;
-          fillColor?: string;
-          emoji?: string;
-        };
-        geojson: FeatureCollection;
-      }>
-    >([]);
+    useState<Array<GeoJsonWithStyle>>([]);
 
   useEffect(() => {
     const thisEffect = async () => {
       setLoaded(true);
-      for (const overpassQueryWithFeatureStyle of overpassQueryWithFeatureStyleList) {
+      for (const overpassQueryWithStyle of overpassQueryWithStyleList) {
         const overpassResJson = await getOverpassResponseJsonWithCache(
-          overpassQueryWithFeatureStyle.query
+          overpassQueryWithStyle.query
         );
         const newGeojson = osmtogeojson(overpassResJson);
         const md5 = new Md5();
-        md5.appendStr(overpassQueryWithFeatureStyle.query);
+        md5.appendStr(overpassQueryWithStyle.query);
         const hash = md5.end();
         setGeoJsonWithStyleList((prev) => {
           if (prev.find((item) => item.id === hash)) return prev;
@@ -115,7 +107,7 @@ const Page = () => {
             ...prev,
             {
               id: hash as string,
-              style: overpassQueryWithFeatureStyle.style || {},
+              style: overpassQueryWithStyle.style || {},
               geojson: newGeojson,
             },
           ];
@@ -126,7 +118,7 @@ const Page = () => {
       setLoaded(true);
       thisEffect();
     }
-  }, [loaded, overpassQueryWithFeatureStyleList]);
+  }, [loaded, overpassQueryWithStyleList]);
 
   useEffect(() => {
     if (!geoJsonWithStyleList) return;
@@ -216,38 +208,39 @@ const Page = () => {
             gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))",
           }}
         >
-          {geoJsonWithStyleListInMapBounds?.map((geoJsonWithStyle) => {
-            const emoji = geoJsonWithStyle.style?.emoji;
-            return geoJsonWithStyle.geojson.features.map((feature, index) => {
-              const name = feature.properties?.name;
-              if (!name) return null;
-              return (
-                <li
-                  key={name}
-                  style={{
-                    margin: "10px",
-                  }}
-                >
-                  <span
+          {geoJsonWithStyleListInMapBounds &&
+            geoJsonWithStyleListInMapBounds.map((geoJsonWithStyle) => {
+              const emoji = geoJsonWithStyle.style?.emoji;
+              return geoJsonWithStyle.geojson.features.map((feature, index) => {
+                const name = feature.properties?.name;
+                if (!name) return null;
+                return (
+                  <li
+                    key={name}
                     style={{
-                      backgroundColor: geoJsonWithStyle.style?.fillColor,
-                      color: geoJsonWithStyle.style?.color,
-                      backdropFilter: "blur(4px)",
-                      borderRadius: "4px",
-                      padding: "2px 4px",
-                      fontFamily: "sans-serif, emoji",
-                      lineHeight: "1.1",
-                      WebkitPrintColorAdjust: "exact",
-                      marginRight: "8px",
+                      margin: "10px",
                     }}
                   >
-                    {emoji} {index + 1}
-                  </span>
-                  : <span>{name}</span>
-                </li>
-              );
-            });
-          })}
+                    <span
+                      style={{
+                        backgroundColor: geoJsonWithStyle.style?.fillColor,
+                        color: geoJsonWithStyle.style?.color,
+                        backdropFilter: "blur(4px)",
+                        borderRadius: "4px",
+                        padding: "2px 4px",
+                        fontFamily: "sans-serif, emoji",
+                        lineHeight: "1.1",
+                        WebkitPrintColorAdjust: "exact",
+                        marginRight: "8px",
+                      }}
+                    >
+                      {emoji} {index + 1}
+                    </span>
+                    : <span>{name}</span>
+                  </li>
+                );
+              });
+            })}
         </ul>
       </div>
     </div>
