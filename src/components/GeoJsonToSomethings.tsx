@@ -242,6 +242,7 @@ export const GeoJsonToSomethings: React.FC<{
                       : "rgba(255, 255, 255, 0.7)",
                     backdropFilter: "blur(4px)",
                     boxSizing: "border-box",
+                    WebkitPrintColorAdjust: "exact",
                   }}
                 >
                   <div
